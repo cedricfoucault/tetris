@@ -1,5 +1,5 @@
-#define PIECE_STARTX 6
-#define PIECE_STARTY 20
+#define PIECE_STARTX 5
+#define PIECE_STARTY 19
 #define LEVEL 1
 
 #include "state.h"
@@ -7,10 +7,15 @@
 
 /* Piece */
 
-void PieceData_select(PieceData *piece){
+void PieceData_select (PieceData **piece){
     // /!\ the numbers generated are not uniformily distributed
-    int type = rand() % 7, orientation = rand() % 4;
-    piece = &(catalog[type][orientation]);
+    int type;
+    while (type = rand() / (RAND_MAX / 8) >= 8);
+    *piece = catalog_getPiece (type, 0);
+}
+
+PieceData *catalog_getPiece (int shape, int orientation) {
+    return &catalog[shape][orientation];
 }
 
 /* Board */
@@ -26,38 +31,70 @@ void Board_init (Board board) {
     }
 }
 
-// beware ! unefficient implementation of Board_clean
-void Board_clean (Board board) {
-    int i, j;
-    bool isFull;
+// // beware ! unefficient implementation of Board_clean
+// void Board_clean (Board board) {
+//     int i, j;
+//     bool isFull;
+// 
+//     for (i = 0; i < BOARD_HEIGHT; i++) {
+//         isFull = true;
+//         // check each row to see if it is complete
+//         for (j = 0; j < BOARD_WIDTH; j++) {
+//             if (!board[i][j]) {
+//                 isFull = false;
+//                 break; 
+//             }
+//         }
+//         // supress the row and rearrange the board accordingly
+//         if (isFull) {
+//             int k;
+//             // if it is the last row that is full, just clean it up
+//             if (i == BOARD_HEIGHT - 1) {
+//                 for (j = 0; k < BOARD_WIDTH; j++) {
+//                     board[i][j] = false;
+//                 }
+//             }
+//             // otherwise, move down the rows above the one that is full
+//             for (k = i; k < BOARD_HEIGHT - 1; k++) {
+//                 for (j= 0; j < BOARD_WIDTH; j++) {
+//                     board[k][j] = board[k+1][j];
+//                 }   
+//             }
+//             // after the rearrangement, we have to check the board again
+//             // from the beginning, since new full rows may appear
+//             i = - 1; // possible optimization : max(-1, i - 4) ?
+//         }
+//     }
+// }
 
-    for (i = 0; i < BOARD_HEIGHT; i++) {
+void Board_clean (Board board) {
+    int i, j, gap;
+    bool isFull;
+    
+    gap = 0;
+    for (i = 0; i < BOARD_HEIGHT - gap; i++) {
+        // loop invariant : gap == the number of full rows between 0 and i
         isFull = true;
-        // check each row to see if it is complete
         for (j = 0; j < BOARD_WIDTH; j++) {
+            // loop invariant : 
+            // isFull == "every box between 0 and j in the ith row is full"
             if (!board[i][j]) {
                 isFull = false;
-                break; 
+            }
+            if (gap > 0) {
+                board[i - gap][j] = board[i][j];
             }
         }
-        // supress the row and rearrange the board accordingly
         if (isFull) {
-            int k;
-            // if it is the last row that is full, just clean it up
-            if (i == BOARD_HEIGHT) {
-                for (j = 0; k < BOARD_WIDTH; j++) {
-                    board[i][j] = false;
-                }
-            }
-            // otherwise, move down the rows above the one that is full
-            for (k = i; k < BOARD_HEIGHT - 1; k++) {
-                for (j= 0; j < BOARD_WIDTH; j++) {
-                    board[k][j] = board[k+1][j];
-                }   
-            }
-            // after the rearrangement, we have to check the board again
-            // from the beginning, since new full rows may appear
-            i = - 1; // possible optimization : max(-1, i - 4) ?
+            gap++;
+        }
+    }
+    
+    // end of loop : i == BOARD_HEIGHT - gap
+    // each full row leads a row at the top of the board to empty itself
+    for (; i < BOARD_HEIGHT; i++) {
+        for (j = 0; j < BOARD_WIDTH; j++) {
+            board[i][j] = false;
         }
     }
 }
@@ -118,7 +155,7 @@ bool GameState_canContinue (GameState *game) {
 void GameState_spawnPiece (GameState *game) {
     PieceData *pieceData;
     // select a piece to be spawn
-    PieceData_select(pieceData);   
+    PieceData_select(&pieceData);   
     // put the piece in the game
     game->piece.data = pieceData;
     game->piece.x = PIECE_STARTX;

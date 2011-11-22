@@ -1,5 +1,5 @@
 #define BOARD_WIDTH 10
-#define BOARD_HEIGHT 10
+#define BOARD_HEIGHT 20
 #define PIECE_SIZE 4
 
 #include <stdbool.h>
