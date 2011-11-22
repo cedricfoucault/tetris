@@ -4,7 +4,7 @@
 
 #include <stdbool.h>
 
-extern int delta;
+extern double delta;
 
 /* Catalog of Tetris's pieces */
 
@@ -39,6 +39,8 @@ typedef struct GameState_ {
     bool isActivePiece;
     double countdown;
 } GameState;
+
+void GameState_init (GameState *game);
 
 void GameState_resetCountdown (GameState *game);
 

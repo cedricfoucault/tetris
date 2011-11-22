@@ -81,8 +81,13 @@ void Board_commitPiece (Board board, ActivePiece piece) {
 
 /* Game State */
 
+void GameState_init (GameState *game) {
+    Board_init(game->board);
+    game->isActivePiece = false;
+    game->countdown = 0.;
+}
 void GameState_resetCountdown (GameState *game) {
-    game->countdown = 0.05 * (11 - LEVEL);
+    game->countdown = 0.05 * (11. - LEVEL);
 }
 
 void GameState_updateCountdown (GameState *game) {
