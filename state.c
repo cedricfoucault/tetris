@@ -6,11 +6,62 @@
 #include <stdlib.h>
 
 /* Piece */
+void catalog_init (void) {
+    
+    // O shape
+    PieceData O[] = catalog[0];
+    "    "
+    " ## "
+    " ## "
+    "    "
+    
+    // I shape
+    PieceData I[] = catalog[1];
+    "    "      "  # "
+    "####"      "  # "
+    "    "      "  # "
+    "    "      "  # "
+    
+    // S shape
+    PieceData S[] = catalog[2];
+    "    "      "  # "
+    "  ##"      "  ##"
+    " ## "      "   #"
+    "    "      "    "
+    
+    // Z shape
+    PieceData Z[] = catalog[3];
+    "    "      "   #"
+    " ## "      "  ##"
+    "  ##"      "  # "
+    "    "      "    "
+    
+    // L shape
+    PieceData L[] = catalog[4];
+    catalog_affect(L,
+    "    ",      "  # ",      "   #",      " ## ",
+    " ###",      "  # ",      " ###",      "  # ",
+    " #  ",      "  ##",      "    ",      "  # ",
+    "    ",      "    ",      "    ",      "  # ")
+    
+    // J shape
+    PieceData J[] = catalog[5];
+    "    "      "  ##"      " #  "      "  # "
+    " ###"      "  # "      " ###"      "  # "
+    "   #"      "  # "      "    "      " ## "
+    "    "      "    "      "    "      "    "
+    
+    // T shape
+    PieceData T[] = catalog[6];
+    "    "      "  # "      "  # "      "  # "
+    " ###"      "  ##"      " ###"      " ## "
+    "  # "      "  # "      "    "      "  # "
+    "    "      "    "      "    "      "    "
+}
 
-void PieceData_select (PieceData **piece){
-    // /!\ the numbers generated are not uniformily distributed
+void PieceData_select (PieceData **piece) {
     int type;
-    while (type = rand() / (RAND_MAX / 8) >= 8);
+    while (type = rand() / (RAND_MAX / 7) >= 7);
     *piece = catalog_getPiece (type, 0);
 }
 
@@ -120,9 +171,18 @@ void Board_commitPiece (Board board, ActivePiece piece) {
 
 void GameState_init (GameState *game) {
     Board_init(game->board);
-    game->isActivePiece = false;
+    game->pieceIsActive = false;
     game->countdown = 0.;
 }
+
+bool GameState_pieceIsActive (GameState *game) {
+    return game->pieceIsActive;
+}
+
+double GameState_getCountdown(GameState *game) {
+    return game->countdown;
+}
+
 void GameState_resetCountdown (GameState *game) {
     game->countdown = 0.05 * (11. - LEVEL);
 }
@@ -131,7 +191,7 @@ void GameState_updateCountdown (GameState *game) {
     game->countdown -= delta;
 }
 
-bool GameState_canFall (GameState *game) {
+bool GameState_pieceCanFall (GameState *game) {
     return !(game->board[game->piece.y - 1][game->piece.x]);
 }
 
@@ -145,10 +205,10 @@ void GameState_mergePiece (GameState *game) {
     // clean the full rows and collapse pile accordingly
     Board_clean(game->board);  
     // remove the active piece
-    game->isActivePiece = false;
+    game->pieceIsActive = false;
 }
 
-bool GameState_canContinue (GameState *game) {
+bool GameState_canSpawnPiece (GameState *game) {
     return !(game->board[PIECE_STARTY][PIECE_STARTX]);
 }
 
@@ -160,5 +220,5 @@ void GameState_spawnPiece (GameState *game) {
     game->piece.data = pieceData;
     game->piece.x = PIECE_STARTX;
     game->piece.y = PIECE_STARTY;
-    game->isActivePiece = true;
+    game->pieceIsActive = true;
 }

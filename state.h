@@ -36,22 +36,26 @@ void Board_init (Board board);
 typedef struct GameState_ {
     Board board;
     ActivePiece piece;
-    bool isActivePiece;
+    bool pieceIsActive;
     double countdown;
 } GameState;
 
 void GameState_init (GameState *game);
 
+bool GameState_pieceIsActive (GameState *game);
+
+double GameState_getCountdown(GameState *game);
+
 void GameState_resetCountdown (GameState *game);
 
 void GameState_updateCountdown (GameState *game);
 
-bool GameState_canFall (GameState *game);
+bool GameState_pieceCanFall (GameState *game);
 
 void GameState_moveDownPiece (GameState *game);
 
 void GameState_mergePiece (GameState *game);
 
-bool GameState_canContinue (GameState *game);
+bool GameState_canSpawnPiece (GameState *game);
 
 void GameState_spawnPiece(GameState *game);

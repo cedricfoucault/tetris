@@ -1,28 +1,31 @@
 #include "state.h"
 #include <stdlib.h>
 
-double delta = 1.;
+double delta = 0.1;
 
 int main (int argc, char const *argv[]) {
     bool gameover = false;
     GameState game;
+    
+    catalog_init();
     GameState_init(&game);
-    while(!gameover) {
+
+    while (!gameover) {
         GameState_updateCountdown(&game);
-        if (game.countdown <= 0) {
+
+        if (GameState_getCountdown(&game) <= 0.) {
             GameState_resetCountdown(&game);
-            if (game.isActivePiece) {
-                if (GameState_canFall(&game)) {
+
+            if (GameState_pieceIsActive(&game)) {
+                if (GameState_pieceCanFall(&game)) {
                     GameState_moveDownPiece(&game);
                 } else {
                     GameState_mergePiece(&game);
                 }
+            } else if (GameState_canSpawnPiece(&game)) {
+                GameState_spawnPiece(&game);
             } else {
-                if (GameState_canContinue(&game)) {
-                    GameState_spawnPiece(&game);
-                } else {
-                    gameover = true;
-                }
+                gameover = true;
             }
         }
     }
